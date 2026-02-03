@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ====================================
-// FORM VALIDATION
+// FORM VALIDATION AND SUBMISSION
 // ====================================
 document.addEventListener('DOMContentLoaded', function() {
     const contactForm = document.querySelector('.contact-form');
@@ -146,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const name = document.getElementById('name');
             const email = document.getElementById('email');
             const message = document.getElementById('message');
+            const submitBtn = contactForm.querySelector('.btn-submit');
             
             let isValid = true;
             
@@ -154,7 +155,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Please enter your name.');
                 name.focus();
                 e.preventDefault();
-                isValid = false;
                 return;
             }
             
@@ -163,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Please enter your email address.');
                 email.focus();
                 e.preventDefault();
-                isValid = false;
                 return;
             }
             
@@ -174,7 +173,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('Please enter a valid email address.');
                     email.focus();
                     e.preventDefault();
-                    isValid = false;
                     return;
                 }
             }
@@ -184,15 +182,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Please enter your message.');
                 message.focus();
                 e.preventDefault();
-                isValid = false;
                 return;
             }
             
-            // If all validations pass, show success message
-            // Note: This will only show if not using Formspree (which redirects)
-            if (isValid && contactForm.getAttribute('action').includes('mailto:')) {
-                alert('Thank you for your message! We will get back to you soon.');
+            // Show loading state on submit button
+            if (submitBtn) {
+                submitBtn.textContent = 'Sending...';
+                submitBtn.disabled = true;
             }
+            
+            // Formspree will handle the actual submission
+            // After submission, Formspree shows a success page
         });
     }
 });
