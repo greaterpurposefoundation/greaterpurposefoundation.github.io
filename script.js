@@ -138,61 +138,96 @@ document.addEventListener('DOMContentLoaded', function() {
 // FORM VALIDATION AND SUBMISSION
 // ====================================
 document.addEventListener('DOMContentLoaded', function() {
-    const contactForm = document.querySelector('.contact-form');
+    const contactForm = document.getElementById('contact-form');
     
     if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            // Basic validation
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Prevent default form submission
+            
+            // Get form elements
             const name = document.getElementById('name');
             const email = document.getElementById('email');
             const message = document.getElementById('message');
             const submitBtn = contactForm.querySelector('.btn-submit');
+            const successMessage = document.getElementById('form-success-message');
+            const errorMessage = document.getElementById('form-error-message');
             
-            let isValid = true;
+            // Hide any previous messages
+            if (successMessage) successMessage.style.display = 'none';
+            if (errorMessage) errorMessage.style.display = 'none';
             
-            // Name validation
+            // Basic validation
             if (name && name.value.trim() === '') {
                 alert('Please enter your name.');
                 name.focus();
-                e.preventDefault();
                 return;
             }
             
-            // Email validation
             if (email && email.value.trim() === '') {
                 alert('Please enter your email address.');
                 email.focus();
-                e.preventDefault();
                 return;
             }
             
-            // Simple email format check
+            // Email format check
             if (email) {
                 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailPattern.test(email.value)) {
                     alert('Please enter a valid email address.');
                     email.focus();
-                    e.preventDefault();
                     return;
                 }
             }
             
-            // Message validation
             if (message && message.value.trim() === '') {
                 alert('Please enter your message.');
                 message.focus();
-                e.preventDefault();
                 return;
             }
             
-            // Show loading state on submit button
-            if (submitBtn) {
-                submitBtn.textContent = 'Sending...';
-                submitBtn.disabled = true;
-            }
+            // Show loading state
+            const originalButtonText = submitBtn.textContent;
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
             
-            // Formspree will handle the actual submission
-            // After submission, Formspree shows a success page
+            // Submit form via AJAX
+            try {
+                const formData = new FormData(contactForm);
+                const response = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    // Success! Show success message
+                    if (successMessage) {
+                        successMessage.style.display = 'block';
+                        // Scroll to success message
+                        successMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                    // Reset form
+                    contactForm.reset();
+                } else {
+                    // Error occurred
+                    if (errorMessage) {
+                        errorMessage.style.display = 'block';
+                        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+            } catch (error) {
+                // Network error
+                if (errorMessage) {
+                    errorMessage.style.display = 'block';
+                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            } finally {
+                // Restore button state
+                submitBtn.textContent = originalButtonText;
+                submitBtn.disabled = false;
+            }
         });
     }
 });
